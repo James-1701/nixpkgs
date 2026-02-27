@@ -307,7 +307,14 @@ stdenv.mkDerivation (finalAttrs: {
       stripLen = 1;
       extraPrefix = "src/s3select/";
     })
+
+    # Fix PyO3 subinterpreter errors by running cryptographic functions in a child process.
+    # Backport of https://github.com/ceph/ceph/pull/62951 to tentacle.
+    # Remove once this is included in a ceph 20 point release.
+    ./patches/pyo3-crypto-child-process.patch
   ];
+
+  patchFlags = [ "-p1" "--batch" "--forward" ];
 
   nativeBuildInputs = [
     autoconf # `autoreconf` is called, e.g. for `qatlib_ext`
