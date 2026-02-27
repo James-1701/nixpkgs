@@ -38,6 +38,8 @@ stdenv.mkDerivation (finalAttrs: {
   postPatch = ''
     # Fix gcc-13 build failures due to missing <cstdint> and
     # <system_error> includes, fixed upstyream sice 8.x
+    sed -e '1i #include <cstdint>' -i db/blob/blob_file_meta.h
+    sed -e '1i #include <cstdint>' -i include/rocksdb/trace_record.h
     sed -e '1i #include <cstdint>' -i db/compaction/compaction_iteration_stats.h
     sed -e '1i #include <cstdint>' -i table/block_based/data_block_hash_index.h
     sed -e '1i #include <cstdint>' -i util/string_util.h
