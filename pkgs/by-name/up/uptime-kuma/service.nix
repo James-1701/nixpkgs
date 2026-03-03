@@ -63,6 +63,15 @@ in
         for supported values.
       '';
     };
+
+    systemd.stateDir = mkOption {
+      type = types.nonEmptyStr;
+      default = "uptime-kuma";
+      example = "uptime-kuma";
+      description = ''
+        Name of the systemd state directory
+      '';
+    };
   };
 
   config = {
@@ -80,7 +89,7 @@ in
       path = [ unixtools.ping ] ++ optional cfg.appriseSupport apprise;
       serviceConfig = {
         Type = "simple";
-        StateDirectory = "uptime-kuma";
+        StateDirectory = cfg.systemd.stateDir;
         StateDirectoryMode = "750";
         DynamicUser = true;
         Restart = "on-failure";
