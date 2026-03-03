@@ -610,6 +610,10 @@ in
     inherit runTest;
     forgejoPackage = pkgs.forgejo-lts;
   };
+  forgejo-modular = import ./forgejo-modular.nix {
+    inherit runTest;
+    forgejoPackage = pkgs.forgejo;
+  };
   freenet = runTest ./freenet.nix;
   freeswitch = runTest ./freeswitch.nix;
   freetube = discoverTests (import ./freetube.nix);

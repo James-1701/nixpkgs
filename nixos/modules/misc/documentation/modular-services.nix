@@ -20,6 +20,7 @@ let
   modularServicesModule = {
     _file = "${__curPos.file}:${toString __curPos.line}";
     options = {
+      "<imports = [ pkgs.forgejo.services.default ]>" = fakeSubmodule pkgs.forgejo.services.default;
       "<imports = [ pkgs.ghostunnel.services.default ]>" = fakeSubmodule pkgs.ghostunnel.services.default;
       "<imports = [ pkgs.php.services.default ]>" = fakeSubmodule pkgs.php.services.default;
     };

@@ -51,7 +51,7 @@ let
     '';
   };
 in
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "forgejo" + lib.optionalString lts "-lts";
 
   inherit
@@ -97,7 +97,7 @@ buildGoModule rec {
     "-s"
     "-w"
     "-X main.Version=${version}"
-    "-X 'main.Tags=${lib.concatStringsSep " " tags}'"
+    "-X 'main.Tags=${lib.concatStringsSep " " finalAttrs.tags}'"
   ];
 
   preConfigure = ''
@@ -158,6 +158,11 @@ buildGoModule rec {
   );
 
   passthru = {
+    services.default = {
+      imports = [ ./service.nix ];
+      forgejo.package = lib.mkDefault finalAttrs.finalPackage;
+    };
+
     # allow nix-update to handle npmDepsHash
     inherit (frontend) npmDeps;
 
@@ -198,4 +203,4 @@ buildGoModule rec {
     broken = stdenv.hostPlatform.isDarwin;
     mainProgram = "forgejo";
   };
-}
+})
