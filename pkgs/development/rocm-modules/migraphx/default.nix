@@ -1,6 +1,7 @@
 {
   lib,
   stdenv,
+  callPackage,
   fetchFromGitHub,
   rocmUpdateScript,
   pkg-config,
@@ -58,7 +59,7 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "migraphx";
-  version = "7.1.1";
+  version = "7.2.0";
 
   outputs = [
     "out"
@@ -74,7 +75,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "ROCm";
     repo = "AMDMIGraphX";
     rev = "rocm-${finalAttrs.version}";
-    hash = "sha256-s6w4bF7koK4wnf6leVKBzwIB4X2ROHa3EgX6XuJIAew=";
+    hash = "sha256-FBAVsk4x3ATLDYtfzcPUPnUTwe36maIAY1/FwqG6jD0=";
   };
 
   nativeBuildInputs = [
@@ -183,6 +184,12 @@ stdenv.mkDerivation (finalAttrs: {
       patchelf $test/bin/test_* --shrink-rpath --allowed-rpath-prefixes "$NIX_STORE"
     '';
 
+  passthru.impureTests = {
+    # NIXPKGS_ALLOW_UNFREE=1 bash $(nix-build -A rocmPackages.migraphx.impureTests.migraphx-driver)
+    migraphx-driver = callPackage ./test-migraphx-driver.nix {
+      migraphx = finalAttrs.finalPackage;
+    };
+  };
   passthru.updateScript = rocmUpdateScript {
     name = finalAttrs.pname;
     inherit (finalAttrs.src) owner;

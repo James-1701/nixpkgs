@@ -157220,7 +157220,7 @@
       "version": "0.0.7",
       "sha256": "11xr26kwmkjjb51wm44ydv0vcinc6k6faqwx4s2faj4iwidlys1m",
       "depends": ["dplyr", "ggplot2", "glue", "gtable", "plyr", "rlang", "tibble"],
-      "broken": false
+      "broken": true
     },
     "ggseas": {
       "name": "ggseas",

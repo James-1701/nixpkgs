@@ -107,7 +107,7 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "zed-editor";
-  version = "0.225.12";
+  version = "0.226.5";
 
   outputs = [
     "out"
@@ -120,7 +120,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     owner = "zed-industries";
     repo = "zed";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-rVJ+NNsnhoXr6y2j2VFrXQVrgbXQY/a6l2Khs36SvDU=";
+    hash = "sha256-ZfYwlHTWirUb2RjEIQyonIHMneCi7ZGD2kPYOfe5HiI=";
   };
 
   postPatch = ''
@@ -140,7 +140,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     rm -r $out/git/*/candle-book/
   '';
 
-  cargoHash = "sha256-i6BZPAKCgomWA/c923/tB9uWtXGr5VXIqmGCYtUUBLM=";
+  cargoHash = "sha256-kdGHSNfvB/GUQ/7iqzXcCF4sbyaMiLYq+/zogg9N/aU=";
 
   nativeBuildInputs = [
     cmake
@@ -192,24 +192,16 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   # Required on darwin because we don't have access to the
   # proprietary Metal shader compiler.
-  buildFeatures = lib.optionals stdenv.hostPlatform.isDarwin [ "gpui/runtime_shaders" ];
+  buildFeatures = lib.optionals stdenv.hostPlatform.isDarwin [ "gpui_platform/runtime_shaders" ];
 
   # Some crates define extra types or enum values in test configuration which then lead
   # to type checking errors in other crates unless this feature is enabled.
-  # gpui/runtime_shaders is required on darwin for the same reason as buildFeatures above:
+  # gpui_platform/runtime_shaders is required on darwin for the same reason as buildFeatures above:
   # without it, build.rs invokes the proprietary Metal shader compiler.
   checkFeatures = [
     "visual-tests"
   ]
   ++ finalAttrs.buildFeatures;
-
-  # cargo-nextest does not support the `=` syntax for parameters, so all test skips must be defined
-  # as two separate arguments
-  checkFlags = lib.optionals stdenv.hostPlatform.isLinux [
-    # Fails on Linux since v0.225, possibly related to https://github.com/zed-industries/zed/pull/48800
-    "--skip"
-    "zed::tests::test_window_edit_state_restoring_enabled"
-  ];
 
   env = {
     ALLOW_MISSING_LICENSES = true;

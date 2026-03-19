@@ -4,7 +4,6 @@
   buildPythonPackage,
   fetchFromGitHub,
   fetchurl,
-  pythonAtLeast,
 
   # build inputs
   cargo,
@@ -36,6 +35,7 @@
   posthog,
   pybase64,
   pydantic,
+  pydantic-settings,
   pypika,
   pyyaml,
   requests,
@@ -68,22 +68,19 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "chromadb";
-  version = "1.5.0";
+  version = "1.5.5";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "chroma-core";
     repo = "chroma";
     tag = finalAttrs.version;
-    hash = "sha256-cjSWgXE5FiTIHzTjkpnaikKCgzLazG1wZYh2J0JbJ2Y=";
+    hash = "sha256-Y/M7awTi2AJTh4xRY0MIfnC9ygy62fG7X3W9QUxW2XE=";
   };
-
-  # https://github.com/chroma-core/chroma/issues/5996
-  disabled = pythonAtLeast "3.14";
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-oS+fT+mGz0b0O8s5hff85d26Czu+nI7sPjY3qwtTkM4=";
+    hash = "sha256-yx5OMZSWRAP732lRypap79vr2I72aT+TWooo+5e0wDQ=";
   };
 
   # Can't use fetchFromGitHub as the build expects a zipfile
@@ -144,6 +141,7 @@ buildPythonPackage (finalAttrs: {
     posthog
     pybase64
     pydantic
+    pydantic-settings
     pypika
     pyyaml
     requests
@@ -221,6 +219,13 @@ buildPythonPackage (finalAttrs: {
 
     # https://github.com/chroma-core/chroma/issues/6029
     "test_embedding_function_config_roundtrip"
+
+    # Requires network access
+    "test_persistent_client_close"
+    "test_persistent_client_context_manager"
+    "test_ephemeral_client_close"
+    "test_ephemeral_client_context_manager"
+    "test_client_close_idempotent"
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     # Fails in nixpkgs-review on Darwin due to concurrent copies running and the lack of network namespaces.
@@ -242,9 +247,11 @@ buildPythonPackage (finalAttrs: {
     # ValueError: An instance of Chroma already exists for ephemeral with different settings
     "chromadb/test/test_chroma.py"
 
-    # pytest can't tell which test_schema.py to load
-    # https://github.com/chroma-core/chroma/issues/6031
-    "chromadb/test/property/test_schema.py"
+    # RuntimeError: There is no current event loop in thread 'MainThread'.
+    # https://github.com/chroma-core/chroma/issues/6659
+    "chromadb/test/test_client.py::test_http_client_with_inconsistent_host_settings[async_client]"
+    "chromadb/test/test_client.py::test_http_client_with_inconsistent_port_settings[async_client]"
+    "chromadb/test/test_client.py::test_http_client[async_client]"
   ];
 
   __darwinAllowLocalNetworking = true;

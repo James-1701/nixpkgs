@@ -19,26 +19,27 @@
   stdenv,
   wayland,
   libxml2,
+  udevCheckHook,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "vicinae";
-  version = "0.20.2";
+  version = "0.20.7";
 
   src = fetchFromGitHub {
     owner = "vicinaehq";
     repo = "vicinae";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-mUHV5wFbtNt00XnghklltvJ/LRi+17fluGuFebQ0HEw=";
+    hash = "sha256-tfx8byB4/LaNA7dsR4zIMtZHSBX8mvYK6jCvQlfVx0E=";
   };
 
   apiDeps = fetchNpmDeps {
     src = "${finalAttrs.src}/src/typescript/api";
-    hash = "sha256-UsTpMR23UQBRseRo33nbT6z/UCjZByryWfn2AQSgm6U=";
+    hash = "sha256-Tr+m8MLaWR8wq+cYpQwZTIzRt2tgDIyc8vVda2x+k4k=";
   };
 
   extensionManagerDeps = fetchNpmDeps {
     src = "${finalAttrs.src}/src/typescript/extension-manager";
-    hash = "sha256-wl8FDFB6Vl1zD0/s2EbU6l1KX4rwUW6dOZof4ebMMO8=";
+    hash = "sha256-8ONawCmKxHwWS0Tx04MCpQmtWfIpJYU8RcqMtQiT/Sw=";
   };
 
   cmakeFlags = lib.mapAttrsToList lib.cmakeFeature {
@@ -83,6 +84,10 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   postPatch = ''
+    # Toggle telemetry from opt-out to opt-in
+    substituteInPlace extra/config.jsonc \
+      --replace-fail '"system_info": true' '"system_info": false'
+
     local postPatchHooks=()
     source ${npmHooks.npmConfigHook}/nix-support/setup-hook
     npmRoot=src/typescript/api npmDeps=${finalAttrs.apiDeps} npmConfigHook
@@ -103,6 +108,9 @@ stdenv.mkDerivation (finalAttrs: {
       --replace-fail "/bin/kill" "${lib.getExe' coreutils "kill"}"\
       --replace-fail "ExecStart=vicinae" "ExecStart=$out/bin/vicinae"
   '';
+
+  doInstallCheck = true;
+  nativeInstallCheckInputs = [ udevCheckHook ];
 
   passthru.updateScript = ./update.sh;
 

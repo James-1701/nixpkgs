@@ -84,6 +84,8 @@ makeScope newScope (
 
     dataframe = callPackage ../development/octave-modules/dataframe { };
 
+    datatypes = callPackage ../development/octave-modules/datatypes { };
+
     dicom = callPackage ../development/octave-modules/dicom { };
 
     divand = callPackage ../development/octave-modules/divand { };
@@ -114,7 +116,14 @@ makeScope newScope (
       inherit (pkgs) gsl;
     };
 
-    image = callPackage ../development/octave-modules/image { };
+    image = callPackage ../development/octave-modules/image {
+      inherit (pkgs)
+        mesa
+        gnuplot
+        makeFontsConf
+        writableTmpDirAsHomeHook
+        ;
+    };
 
     image-acquisition = callPackage ../development/octave-modules/image-acquisition { };
 
